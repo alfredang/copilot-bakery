@@ -161,7 +161,7 @@ img { max-width: 100%; display: block; }
 
 /* ---------- Course concierge ---------- */
 .chat-fab {
-  position: fixed; right: 24px; bottom: 24px; z-index: 90;
+  position: fixed; right: 24px; bottom: 88px; z-index: 2147483000;
   min-width: 86px; height: 54px; padding: 0 1.15rem; border: 0; border-radius: 999px;
   background: var(--brand); color: #fff; box-shadow: var(--shadow);
   font: 700 .88rem 'Inter', sans-serif; cursor: pointer;
@@ -270,5 +270,5 @@ img { max-width: 100%; display: block; }
     inset: 72px 8px 8px; width: auto; height: auto; max-width: none; max-height: none;
     border-radius: 18px;
   }
-  .chat-fab { right: 18px; bottom: 18px; }
+  .chat-fab { right: 18px; bottom: 88px; }
 }
