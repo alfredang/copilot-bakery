@@ -18,7 +18,8 @@ A replica of the Cook & Bake Academy landing page connected to a published
 
 | Path | Description |
 |------|-------------|
-| [`website/`](website/) | One-page landing site whose chat calls-to-action open the published Copilot Studio agent. Images from Unsplash. |
+| [`website/`](website/) | One-page landing site with a bakery-branded, in-page Direct Line chat client. Images from Unsplash. |
+| [`api/`](api/) | Secure Azure Function that exchanges the Direct Line secret for short-lived browser conversation tokens. |
 | [`brochures/`](brochures/) | 20 mock course brochures (`.txt`) - 10 bakery + 10 cooking - for Copilot Studio knowledge. |
 | [`output/pdf/`](output/pdf/) | Upload-ready refund policy and combined course brochure PDFs for the Copilot agent. |
 | [`tools/generate_mock_pdfs.py`](tools/generate_mock_pdfs.py) | Reproducible ReportLab generator for both mock PDFs. |
@@ -27,20 +28,31 @@ A replica of the Cook & Bake Academy landing page connected to a published
 
 ## Quick start
 
-1. **Connect the published agent** - copy the **Demo Website** URL from Copilot
-   Studio's publish screen and paste it into
-   [`website/copilot-config.js`](website/copilot-config.js). The website opens the
-   agent in a new tab; nothing is embedded.
+1. **Configure Direct Line** - set the agent to **No authentication**, enable
+   **Require secured access** under **Web channel security**, and keep both
+   generated secrets private.
 
-2. **View the site** - serve the repository locally and open
-   [`website/index.html`](website/index.html). Click the chat button to open the
-   published course assistant.
+2. **Run the token service** - copy `.env.example` to `.env`, set
+   `DIRECT_LINE_SECRET`, install the dependencies in [`api/`](api/), and start the
+   Azure Function. Never place the secret in [`website/`](website/).
 
-3. **Upload the knowledge files** - add both files from [`output/pdf/`](output/pdf/) as
+3. **Connect the website** - set `tokenServiceUrl` in
+   [`website/copilot-config.js`](website/copilot-config.js) to the deployed Azure
+   Function endpoint. The conversation stays inside the branded website chat.
+
+4. **Upload the knowledge files** - add both files from [`output/pdf/`](output/pdf/) as
    knowledge sources in the Copilot Studio agent, then publish the agent.
 
-4. **Upload the agent skills** - add each ZIP file from [`skills/`](skills/) through
+5. **Upload the agent skills** - add each ZIP file from [`skills/`](skills/) through
    Copilot Studio's **Add skill** interface.
 
-5. **Apply the custom instructions** - copy the content from
+6. **Apply the custom instructions** - copy the content from
    [`custom-instructions.md`](custom-instructions.md) into the agent instructions.
+
+## Secure Direct Line configuration
+
+The Direct Line secret must never be included in browser JavaScript or committed
+to GitHub. For local development, copy `.env.example` to `.env` and set
+`DIRECT_LINE_SECRET`. In production, add the same name as an Azure Function
+application setting. The browser calls `/api/directline/token` and receives only
+a short-lived, single-conversation token.

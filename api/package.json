@@ -1,0 +1,17 @@
+{
+  "name": "copilot-bakery-token-service",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Azure Function that exchanges a Direct Line secret for short-lived conversation tokens.",
+  "main": "src/functions/*.js",
+  "scripts": {
+    "start": "func start",
+    "check": "node --check src/functions/direct-line-token.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@azure/functions": "^4.7.2"
+  }
+}

@@ -1,5 +1,8 @@
-/* Published Copilot Studio agent opened by the website's chat buttons. */
+/* Public configuration only. Never place the Direct Line secret in this file. */
 window.CookBakeCopilotConfig = {
-  agentUrl:
-    "https://copilotstudio.microsoft.com/environments/Default-0a37137e-d665-428f-99c4-195a535f9db0/bots/Default_Sales_Assistant_e0ab07/canvas?__version__=2&enableFileAttachment=false&cliAgent=true",
+  tokenServiceUrl:
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1"
+      ? "http://localhost:7071/api/directline/token"
+      : "https://copilot-bakery-token-a7f2c9-esa4gsf9hqcscygd.southeastasia-01.azurewebsites.net/api/directline/token",
 };

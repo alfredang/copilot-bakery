@@ -53,7 +53,7 @@ function renderCourses(filter = "all") {
         </div>
         <div class="card__foot">
           <span class="card__price">S$${c.fee}</span>
-          <button class="card__ask" onclick="window.CookBakeAgent.open()">Ask &amp; enrol →</button>
+          <button class="card__ask" onclick="window.CookBakeChat.ask('Tell me about the ${c.title.replace(/'/g,"")} course')">Ask &amp; enrol →</button>
         </div>
       </div>
     </article>`).join("");
@@ -68,24 +68,197 @@ document.getElementById("filters").addEventListener("click", (e) => {
 });
 renderCourses();
 
-/* Open the published agent directly. Nothing is embedded in this website. */
-const CookBakeAgent = (() => {
-  const agentUrl = (window.CookBakeCopilotConfig?.agentUrl || "").trim();
+/* Custom in-page client. The browser receives a short-lived Direct Line token
+   from the server-side broker; it never receives the Direct Line secret. */
+const CookBakeChat = (() => {
+  const config = window.CookBakeCopilotConfig || {};
+  const tokenServiceUrl = (config.tokenServiceUrl || "").trim();
+  const panel = document.getElementById("chat");
+  const fab = document.getElementById("chat-fab");
+  const closeButton = document.getElementById("chat-close");
+  const restartButton = document.getElementById("chat-restart");
+  const retryButton = document.getElementById("chat-retry");
+  const welcome = document.getElementById("chat-welcome");
+  const status = document.getElementById("chat-status");
+  const error = document.getElementById("chat-error");
+  const webchat = document.getElementById("webchat");
+  let initialized = false;
+  let initializing = false;
+  let pendingPrompt = "";
+  let store;
+  let lastActiveElement;
 
-  function open() {
-    if (!agentUrl) {
-      console.error("The published Copilot Studio agent URL is not configured.");
-      return;
-    }
-    const agentWindow = window.open(agentUrl, "_blank");
-    if (agentWindow) {
-      agentWindow.opener = null;
-    } else {
-      window.location.assign(agentUrl);
+  const styleOptions = {
+    accent: "#b9581b",
+    backgroundColor: "#fffaf4",
+    botAvatarBackgroundColor: "#f4dfc9",
+    botAvatarInitials: "CB",
+    botAvatarInitialsColor: "#8f4315",
+    bubbleBackground: "#ffffff",
+    bubbleBorderColor: "#ead8c5",
+    bubbleBorderRadius: 16,
+    bubbleBorderStyle: "solid",
+    bubbleBorderWidth: 1,
+    bubbleFromUserBackground: "#b9581b",
+    bubbleFromUserBorderColor: "#b9581b",
+    bubbleFromUserBorderRadius: 16,
+    bubbleFromUserTextColor: "#ffffff",
+    bubbleMaxWidth: 292,
+    bubbleMinHeight: 38,
+    bubbleNubSize: 0,
+    bubbleFromUserNubSize: 0,
+    bubbleTextColor: "#2a2018",
+    hideUploadButton: true,
+    paddingRegular: 12,
+    primaryFont: "'Inter', system-ui, sans-serif",
+    sendBoxBackground: "#ffffff",
+    sendBoxBorderTop: "1px solid #ead8c5",
+    sendBoxButtonColor: "#b9581b",
+    sendBoxButtonColorOnHover: "#8f4315",
+    sendBoxHeight: 58,
+    sendBoxPlaceholder: "Ask about courses, fees or enrolment",
+    sendBoxPlaceholderColor: "#8a7a6b",
+    sendBoxTextColor: "#2a2018",
+    showAvatarInGroup: "status",
+    suggestedActionBackgroundColor: "#fff7ed",
+    suggestedActionBackgroundColorOnHover: "#f9e8d6",
+    suggestedActionBorderColor: "#d8b993",
+    suggestedActionBorderRadius: 999,
+    suggestedActionTextColor: "#8f4315",
+    userAvatarBackgroundColor: "#8f4315",
+    userAvatarInitials: "You",
+  };
+
+  function setWelcomeVisible(visible) {
+    welcome.hidden = !visible;
+  }
+
+  function sendMessage(text) {
+    if (!text || !store) return;
+    setWelcomeVisible(false);
+    store.dispatch({
+      type: "WEB_CHAT/SEND_MESSAGE",
+      payload: { text, method: "keyboard" },
+    });
+  }
+
+  function createStore() {
+    return window.WebChat.createStore(
+      {},
+      ({ dispatch }) => (next) => (action) => {
+        if (action.type === "DIRECT_LINE/CONNECT_FULFILLED") {
+          dispatch({
+            type: "DIRECT_LINE/POST_ACTIVITY",
+            meta: { method: "keyboard" },
+            payload: {
+              activity: {
+                channelData: { postBack: true },
+                name: "startConversation",
+                type: "event",
+              },
+            },
+          });
+          if (pendingPrompt) {
+            const prompt = pendingPrompt;
+            pendingPrompt = "";
+            window.setTimeout(() => sendMessage(prompt), 250);
+          }
+        }
+        if (
+          action.type === "DIRECT_LINE/POST_ACTIVITY" &&
+          action.payload?.activity?.type === "message"
+        ) {
+          setWelcomeVisible(false);
+        }
+        return next(action);
+      }
+    );
+  }
+
+  async function connect() {
+    if (!tokenServiceUrl) throw new Error("Token service URL is not configured.");
+    if (!window.WebChat) throw new Error("Web Chat did not load.");
+
+    status.hidden = false;
+    error.hidden = true;
+    const response = await fetch(tokenServiceUrl, { method: "POST" });
+    if (!response.ok) throw new Error("Token service request failed.");
+    const conversation = await response.json();
+    if (!conversation.token) throw new Error("Conversation token is missing.");
+
+    webchat.replaceChildren();
+    store = createStore();
+    const directLine = window.WebChat.createDirectLine({
+      token: conversation.token,
+    });
+    window.WebChat.renderWebChat({ directLine, store, styleOptions }, webchat);
+    initialized = true;
+    status.hidden = true;
+  }
+
+  async function initialize() {
+    if (initialized || initializing) return;
+    initializing = true;
+    try {
+      await connect();
+    } catch (connectionError) {
+      console.error("Unable to start course concierge.", connectionError);
+      status.hidden = true;
+      error.hidden = false;
+    } finally {
+      initializing = false;
     }
   }
 
-  return { open };
+  function open() {
+    lastActiveElement = document.activeElement;
+    panel.removeAttribute("inert");
+    panel.classList.add("is-open");
+    panel.setAttribute("aria-hidden", "false");
+    fab.hidden = true;
+    closeButton.focus();
+    initialize();
+  }
+
+  function close() {
+    panel.classList.remove("is-open");
+    panel.setAttribute("aria-hidden", "true");
+    panel.setAttribute("inert", "");
+    fab.hidden = false;
+    lastActiveElement?.focus();
+  }
+
+  async function restart() {
+    initialized = false;
+    store = null;
+    pendingPrompt = "";
+    setWelcomeVisible(true);
+    error.hidden = true;
+    await initialize();
+  }
+
+  function ask(prompt = "") {
+    pendingPrompt = prompt;
+    open();
+    if (initialized) {
+      sendMessage(prompt);
+      pendingPrompt = "";
+    }
+  }
+
+  fab.addEventListener("click", open);
+  closeButton.addEventListener("click", close);
+  restartButton.addEventListener("click", restart);
+  retryButton.addEventListener("click", restart);
+  document.querySelector(".chat__prompts").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-chat-prompt]");
+    if (button) ask(button.dataset.chatPrompt);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && panel.classList.contains("is-open")) close();
+  });
+
+  return { open, close, ask };
 })();
 
-window.CookBakeAgent = CookBakeAgent;
+window.CookBakeChat = CookBakeChat;
