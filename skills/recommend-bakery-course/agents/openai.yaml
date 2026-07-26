@@ -1,0 +1,4 @@
+interface:
+  display_name: "Recommend Bakery Course"
+  short_description: "Match learners to the right course"
+  default_prompt: "Use $recommend-bakery-course to recommend the best course for this learner."

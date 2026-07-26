@@ -10,7 +10,7 @@ design wrapped around a live **Microsoft Copilot Studio** canvas. The site inclu
 
 ## Live Demo
 
-🔗 **https://alfredang.github.io/n8n-ragdemo2/**
+🔗 **https://alfredang.github.io/copilot-bakery/**
 
 ![Cook & Bake Academy — home screen](screenshot.png)
 
@@ -22,6 +22,8 @@ design wrapped around a live **Microsoft Copilot Studio** canvas. The site inclu
 | [`brochures/`](brochures/) | 20 mock course brochures (`.txt`) — 10 bakery + 10 cooking — to upload to Google Drive. |
 | [`output/pdf/`](output/pdf/) | Upload-ready refund policy and combined course brochure PDFs for the Copilot agent. |
 | [`tools/generate_mock_pdfs.py`](tools/generate_mock_pdfs.py) | Reproducible ReportLab generator for both mock PDFs. |
+| [`skills/`](skills/) | Source files and upload-ready ZIP packages for three Copilot Studio agent skills. |
+| [`custom-instructions.md`](custom-instructions.md) | Website-specific Copilot Studio instructions for course guidance, pricing, enrolment, refunds, and safety. |
 | [`n8n-workflows/`](n8n-workflows/) | 3 **manual-trigger** ingestion workflows (Supabase, Pinecone, Qdrant). |
 | [`CX Agent with RAG.json`](CX%20Agent%20with%20RAG.json) | The answering RAG agent workflow: **Webhook (POST) → AI Agent (Gemini Flash + Pinecone retrieval tool) → Respond to Webhook**. |
 | [`LEARNER-GUIDE.md`](LEARNER-GUIDE.md) | Step-by-step setup for Supabase, Pinecone & Qdrant vector databases. |

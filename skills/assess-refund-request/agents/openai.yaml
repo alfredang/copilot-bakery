@@ -1,0 +1,4 @@
+interface:
+  display_name: "Assess Refund Request"
+  short_description: "Explain refund and transfer eligibility"
+  default_prompt: "Use $assess-refund-request to assess this cancellation or transfer request."

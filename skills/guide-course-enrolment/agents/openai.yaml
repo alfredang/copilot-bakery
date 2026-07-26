@@ -1,0 +1,4 @@
+interface:
+  display_name: "Guide Course Enrolment"
+  short_description: "Guide learners through course enrolment"
+  default_prompt: "Use $guide-course-enrolment to help this learner enrol in a course."
