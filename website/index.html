@@ -26,7 +26,7 @@
         <a href="#campus">Campus</a>
         <a href="#contact">Contact</a>
       </nav>
-      <button class="btn btn--sm" onclick="window.CookBakeChat.open()">💬 Ask us</button>
+      <button class="btn btn--sm" onclick="window.CookBakeAgent.open()">💬 Ask us</button>
     </div>
   </header>
 
@@ -41,7 +41,7 @@
         practical, job-ready skills from professional chefs in small classes.</p>
       <div class="hero__cta">
         <a href="#courses" class="btn btn--lg">Browse courses</a>
-        <button class="btn btn--ghost btn--lg" onclick="window.CookBakeChat.open()">💬 Chat with us</button>
+        <button class="btn btn--ghost btn--lg" onclick="window.CookBakeAgent.open()">💬 Chat with us</button>
       </div>
       <div class="hero__stats">
         <div><strong>20+</strong><span>Courses</span></div>
@@ -110,7 +110,7 @@
           <li><strong>🧁 Bakehouse Campus</strong><br />Sweet Heights Bakery Campus, 123 Orchard Road, #04-12, Singapore 238888</li>
           <li><strong>🍳 Culinary Campus</strong><br />Flavour Lab Culinary Campus, 88 Bukit Timah Road, #02-05, Singapore 229841</li>
         </ul>
-        <button class="btn" onclick="window.CookBakeChat.ask('Where are your campuses located?')">Ask about locations</button>
+        <button class="btn" onclick="window.CookBakeAgent.open()">Ask about locations</button>
       </div>
     </div>
   </section>
@@ -119,7 +119,7 @@
   <section class="cta" id="contact">
     <h2>Ready to roll up your sleeves?</h2>
     <p>Talk to our customer service assistant about any course — duration, fees, intakes and more.</p>
-    <button class="btn btn--lg" onclick="window.CookBakeChat.open()">💬 Open the chat assistant</button>
+    <button class="btn btn--lg" onclick="window.CookBakeAgent.open()">💬 Open the chat assistant</button>
     <p class="cta__contact">📞 +65 6888 1234 &nbsp;·&nbsp; ✉️ enrol@cookbakeacademy.sg</p>
   </section>
 
@@ -129,36 +129,7 @@
     <p class="powered-by">Powered by <a href="https://www.tertiaryinfotech.com/" target="_blank" rel="noopener">Tertiary Infotech Academy Pte Ltd</a></p>
   </footer>
 
-  <!-- ===== CHATBOT WIDGET ===== -->
-  <button class="chat-fab" id="chat-fab" aria-label="Open chat" onclick="window.CookBakeChat.toggle()">
-    <span class="chat-fab__icon">💬</span>
-    <span class="chat-fab__pulse"></span>
-  </button>
-
-  <div class="chat" id="chat" aria-hidden="true" role="dialog" aria-label="Cook and Bake course assistant" inert>
-    <div class="chat__header">
-      <div class="chat__id">
-        <span class="chat__avatar">🧑‍🍳</span>
-        <div>
-          <strong>Course Assistant</strong>
-          <small><i class="dot"></i> Powered by Copilot Studio</small>
-        </div>
-      </div>
-      <button class="chat__close" type="button" onclick="window.CookBakeChat.close()" aria-label="Close chat">✕</button>
-    </div>
-
-    <div class="chat__canvas">
-      <iframe
-        id="copilot-frame"
-        title="Cook and Bake Academy Copilot course assistant"
-        src="https://copilotstudio.microsoft.com/environments/Default-0a37137e-d665-428f-99c4-195a535f9db0/bots/Default_Sales_Assistant_e0ab07/canvas?__version__=2&amp;enableFileAttachment=false&amp;cliAgent=true"
-        frameborder="0"
-        loading="lazy"
-        allow="microphone">
-      </iframe>
-    </div>
-  </div>
-
+  <script src="copilot-config.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

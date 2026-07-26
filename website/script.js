@@ -53,7 +53,7 @@ function renderCourses(filter = "all") {
         </div>
         <div class="card__foot">
           <span class="card__price">S$${c.fee}</span>
-          <button class="card__ask" onclick="window.CookBakeChat.ask('Tell me about the ${c.title.replace(/'/g,"")} course')">Ask &amp; enrol →</button>
+          <button class="card__ask" onclick="window.CookBakeAgent.open()">Ask &amp; enrol →</button>
         </div>
       </div>
     </article>`).join("");
@@ -68,40 +68,24 @@ document.getElementById("filters").addEventListener("click", (e) => {
 });
 renderCourses();
 
-/* Floating Copilot Studio shell. Cross-origin iframe security means page-level
-   "ask" buttons can open the assistant but cannot prefill its conversation. */
-const CookBakeChat = (() => {
-  const panel = document.getElementById("chat");
-  const fab = document.getElementById("chat-fab");
-  const closeButton = panel.querySelector(".chat__close");
-  let lastActiveElement;
+/* Open the published agent directly. Nothing is embedded in this website. */
+const CookBakeAgent = (() => {
+  const agentUrl = (window.CookBakeCopilotConfig?.agentUrl || "").trim();
 
   function open() {
-    lastActiveElement = document.activeElement;
-    panel.removeAttribute("inert");
-    panel.classList.add("is-open");
-    panel.setAttribute("aria-hidden", "false");
-    fab.style.display = "none";
-    closeButton.focus();
+    if (!agentUrl) {
+      console.error("The published Copilot Studio agent URL is not configured.");
+      return;
+    }
+    const agentWindow = window.open(agentUrl, "_blank");
+    if (agentWindow) {
+      agentWindow.opener = null;
+    } else {
+      window.location.assign(agentUrl);
+    }
   }
 
-  function close() {
-    panel.classList.remove("is-open");
-    panel.setAttribute("aria-hidden", "true");
-    panel.setAttribute("inert", "");
-    fab.style.display = "grid";
-    lastActiveElement?.focus();
-  }
-
-  function toggle() {
-    panel.classList.contains("is-open") ? close() : open();
-  }
-
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && panel.classList.contains("is-open")) close();
-  });
-
-  return { open, close, toggle, ask: open };
+  return { open };
 })();
 
-window.CookBakeChat = CookBakeChat;
+window.CookBakeAgent = CookBakeAgent;
