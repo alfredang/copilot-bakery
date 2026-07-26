@@ -1,8 +1,5 @@
-/* Cook & Bake Academy landing page with a Copilot Studio chat canvas. */
+/* Cook & Bake Academy landing page course catalogue. */
 
-/* ---------------------------------------------------------------------
-   Course catalogue (mirrors the 20 brochures in /brochures)
-   --------------------------------------------------------------------- */
 const COURSES = [
   { code:"BAK-101", title:"Artisan Sourdough Bread Baking", cat:"Bakery", level:"Beginner", weeks:4, fee:680, campus:"Bakehouse", img:"1589367920969-ab8e050bbb04" },
   { code:"BAK-102", title:"French Pastry & Viennoiserie", cat:"Bakery", level:"Intermediate", weeks:8, fee:1480, campus:"Bakehouse", img:"1509440159596-0249088772ff" },
@@ -26,268 +23,210 @@ const COURSES = [
   { code:"CUL-210", title:"Knife Skills & Kitchen Essentials", cat:"Cooking", level:"Beginner", weeks:1, fee:160, campus:"Culinary", img:"1556909212-d5b604d0c90d" },
 ];
 
+const COURSE_DETAILS = {
+  "BAK-101": { hours: 24, intakes: "Jan, Apr, Jul and Oct", certificate: "Certificate in Artisan Sourdough Baking" },
+  "BAK-102": { hours: 48, intakes: "Feb, Jun and Sep", certificate: "Diploma in French Pastry Arts" },
+  "BAK-103": { hours: 36, intakes: "Mar, Aug and Nov", certificate: "Certificate in Cake Design" },
+  "BAK-104": { hours: 12, intakes: "Monthly", certificate: "Certificate of Completion" },
+  "BAK-105": { hours: 24, intakes: "Jan, May and Sep", certificate: "Certificate in Chocolate Artistry" },
+  "BAK-106": { hours: 8, intakes: "Weekly", certificate: "Certificate of Completion" },
+  "BAK-107": { hours: 18, intakes: "Jan, Apr, Jul and Oct", certificate: "Certificate in Bread Baking" },
+  "BAK-108": { hours: 8, intakes: "Weekly", certificate: "Certificate of Completion" },
+  "BAK-109": { hours: 18, intakes: "Mar, Jul and Nov", certificate: "Certificate in Pastry Making" },
+  "BAK-110": { hours: 24, intakes: "Feb, Jun and Oct", certificate: "Certificate in Asian Baking" },
+  "CUL-201": { hours: 36, intakes: "Feb, Jun and Oct", certificate: "Diploma in Italian Cooking" },
+  "CUL-202": { hours: 18, intakes: "Monthly", certificate: "Certificate in Thai Cuisine" },
+  "CUL-203": { hours: 24, intakes: "Jan, May and Sep", certificate: "Certificate in Japanese Cuisine" },
+  "CUL-204": { hours: 48, intakes: "Feb and Sep", certificate: "Diploma in French Cuisine" },
+  "CUL-205": { hours: 18, intakes: "Monthly", certificate: "Certificate in Chinese Cooking" },
+  "CUL-206": { hours: 18, intakes: "Mar, Jul and Nov", certificate: "Certificate in Indian Cuisine" },
+  "CUL-207": { hours: 12, intakes: "Monthly", certificate: "Certificate in Healthy Cooking" },
+  "CUL-208": { hours: 18, intakes: "Feb, Jun and Oct", certificate: "Certificate in Plant-Based Cooking" },
+  "CUL-209": { hours: 12, intakes: "Mar, Jun, Sep and Dec", certificate: "Certificate in Grilling & BBQ" },
+  "CUL-210": { hours: 8, intakes: "Weekly", certificate: "Certificate of Completion" },
+};
+
 const CAMPUSES = {
   Bakehouse: "Sweet Heights Bakery Campus, 123 Orchard Road, #04-12, Singapore 238888",
-  Culinary:  "Flavour Lab Culinary Campus, 88 Bukit Timah Road, #02-05, Singapore 229841",
+  Culinary: "Flavour Lab Culinary Campus, 88 Bukit Timah Road, #02-05, Singapore 229841",
 };
 
 const imgUrl = (id) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=700&q=70`;
 
-/* ---------------------------------------------------------------------
-   Render course cards + filters
-   --------------------------------------------------------------------- */
 function renderCourses(filter = "all") {
   const grid = document.getElementById("course-grid");
-  const list = COURSES.filter((c) => filter === "all" || c.cat === filter);
-  grid.innerHTML = list.map((c) => `
+  const list = COURSES.filter((course) => filter === "all" || course.cat === filter);
+  grid.innerHTML = list.map((course) => `
     <article class="card">
-      <div class="card__img" style="background-image:url('${imgUrl(c.img)}')">
-        <span class="card__tag">${c.cat === "Bakery" ? "🧁 Bakery" : "🍳 Cooking"}</span>
-        <span class="card__lvl">${c.level}</span>
+      <div class="card__img" style="background-image:url('${imgUrl(course.img)}')">
+        <span class="card__tag">${course.cat === "Bakery" ? "🧁 Bakery" : "🍳 Cooking"}</span>
+        <span class="card__lvl">${course.level}</span>
       </div>
       <div class="card__body">
-        <h3>${c.title}</h3>
+        <h3>${course.title}</h3>
         <div class="card__meta">
-          <span>🕒 ${c.weeks} week${c.weeks > 1 ? "s" : ""}</span>
-          <span>📍 ${c.campus === "Bakehouse" ? "Orchard Rd" : "Bukit Timah"}</span>
+          <span>🕒 ${course.weeks} week${course.weeks > 1 ? "s" : ""}</span>
+          <span>📍 ${course.campus === "Bakehouse" ? "Orchard Rd" : "Bukit Timah"}</span>
         </div>
         <div class="card__foot">
-          <span class="card__price">S$${c.fee}</span>
-          <button class="card__ask" onclick="window.CookBakeChat.ask('Tell me about the ${c.title.replace(/'/g,"")} course')">Ask &amp; enrol →</button>
+          <span class="card__price">S$${course.fee}</span>
+          <a class="card__ask" href="#course-concierge">Ask &amp; enrol →</a>
         </div>
       </div>
     </article>`).join("");
 }
 
-document.getElementById("filters").addEventListener("click", (e) => {
-  const btn = e.target.closest(".chip");
-  if (!btn) return;
-  document.querySelectorAll(".chip").forEach((c) => c.classList.remove("is-active"));
-  btn.classList.add("is-active");
-  renderCourses(btn.dataset.filter);
+document.getElementById("filters").addEventListener("click", (event) => {
+  const button = event.target.closest(".chip");
+  if (!button) return;
+  document.querySelectorAll(".chip").forEach((chip) => chip.classList.remove("is-active"));
+  button.classList.add("is-active");
+  renderCourses(button.dataset.filter);
 });
+
 renderCourses();
 
-/* Custom in-page client. The browser receives a short-lived Direct Line token
-   from the server-side broker; it never receives the Direct Line secret. */
-const CookBakeChat = (() => {
-  const config = window.CookBakeCopilotConfig || {};
-  const tokenServiceUrl = (config.tokenServiceUrl || "").trim();
-  const panel = document.getElementById("chat");
-  const fab = document.getElementById("chat-fab");
-  const closeButton = document.getElementById("chat-close");
-  const restartButton = document.getElementById("chat-restart");
-  const retryButton = document.getElementById("chat-retry");
-  const welcome = document.getElementById("chat-welcome");
-  const status = document.getElementById("chat-status");
-  const error = document.getElementById("chat-error");
-  const webchat = document.getElementById("webchat");
-  let initialized = false;
-  let initializing = false;
-  let pendingPrompt = "";
-  let store;
-  let directLine;
-  let connectionTimeout;
-  let lastActiveElement;
+const BrowserCourseAssistant = (() => {
+  const messages = document.getElementById("faq-chat-messages");
+  const suggestions = document.getElementById("faq-chat-suggestions");
+  const form = document.getElementById("faq-chat-form");
+  const input = document.getElementById("faq-chat-input");
+  const resetButton = document.getElementById("faq-chat-reset");
 
-  const styleOptions = {
-    accent: "#b9581b",
-    backgroundColor: "#fffaf4",
-    botAvatarBackgroundColor: "#f4dfc9",
-    botAvatarInitials: "CB",
-    botAvatarInitialsColor: "#8f4315",
-    bubbleBackground: "#ffffff",
-    bubbleBorderColor: "#ead8c5",
-    bubbleBorderRadius: 16,
-    bubbleBorderStyle: "solid",
-    bubbleBorderWidth: 1,
-    bubbleFromUserBackground: "#b9581b",
-    bubbleFromUserBorderColor: "#b9581b",
-    bubbleFromUserBorderRadius: 16,
-    bubbleFromUserTextColor: "#ffffff",
-    bubbleMaxWidth: 292,
-    bubbleMinHeight: 38,
-    bubbleNubSize: 0,
-    bubbleFromUserNubSize: 0,
-    bubbleTextColor: "#2a2018",
-    hideUploadButton: true,
-    paddingRegular: 12,
-    primaryFont: "'Inter', system-ui, sans-serif",
-    sendBoxBackground: "#ffffff",
-    sendBoxBorderTop: "1px solid #ead8c5",
-    sendBoxButtonColor: "#b9581b",
-    sendBoxButtonColorOnHover: "#8f4315",
-    sendBoxHeight: 58,
-    sendBoxPlaceholder: "Ask about courses, fees or enrolment",
-    sendBoxPlaceholderColor: "#8a7a6b",
-    sendBoxTextColor: "#2a2018",
-    showAvatarInGroup: "status",
-    suggestedActionBackgroundColor: "#fff7ed",
-    suggestedActionBackgroundColorOnHover: "#f9e8d6",
-    suggestedActionBorderColor: "#d8b993",
-    suggestedActionBorderRadius: 999,
-    suggestedActionTextColor: "#8f4315",
-    userAvatarBackgroundColor: "#8f4315",
-    userAvatarInitials: "You",
-  };
+  const normalize = (value) =>
+    value.toLowerCase().replace(/[^a-z0-9$-]+/g, " ").replace(/\s+/g, " ").trim();
 
-  function setWelcomeVisible(visible) {
-    welcome.hidden = !visible;
+  function addMessage(text, sender = "bot") {
+    const row = document.createElement("div");
+    const avatar = document.createElement("span");
+    const bubble = document.createElement("div");
+
+    row.className = `faq-chat__message faq-chat__message--${sender}`;
+    avatar.className = "faq-chat__avatar";
+    avatar.textContent = sender === "bot" ? "CB" : "You";
+    bubble.className = "faq-chat__bubble";
+    bubble.textContent = text;
+    row.append(avatar, bubble);
+    messages.append(row);
+    messages.scrollTop = messages.scrollHeight;
   }
 
-  function sendMessage(text) {
-    if (!text || !store) return;
-    setWelcomeVisible(false);
-    store.dispatch({
-      type: "WEB_CHAT/SEND_MESSAGE",
-      payload: { text, method: "keyboard" },
-    });
-  }
+  function findCourse(question) {
+    const query = normalize(question);
+    const exactCode = COURSES.find((course) => query.includes(course.code.toLowerCase()));
+    if (exactCode) return exactCode;
 
-  function clearConnectionTimeout() {
-    if (connectionTimeout) {
-      window.clearTimeout(connectionTimeout);
-      connectionTimeout = undefined;
-    }
-  }
-
-  function showConnectionError(connectionError) {
-    clearConnectionTimeout();
-    initialized = false;
-    initializing = false;
-    status.hidden = true;
-    error.hidden = false;
-    console.error("Unable to start course concierge.", connectionError);
-  }
-
-  function createStore() {
-    return window.WebChat.createStore(
-      {},
-      ({ dispatch }) => (next) => (action) => {
-        if (action.type === "DIRECT_LINE/CONNECT_FULFILLED") {
-          clearConnectionTimeout();
-          initialized = true;
-          initializing = false;
-          status.hidden = true;
-          error.hidden = true;
-          dispatch({
-            type: "DIRECT_LINE/POST_ACTIVITY",
-            meta: { method: "keyboard" },
-            payload: {
-              activity: {
-                channelData: { postBack: true },
-                name: "startConversation",
-                type: "event",
-              },
-            },
-          });
-          if (pendingPrompt) {
-            const prompt = pendingPrompt;
-            pendingPrompt = "";
-            window.setTimeout(() => sendMessage(prompt), 250);
-          }
-        }
-        if (action.type === "DIRECT_LINE/CONNECT_REJECTED") {
-          showConnectionError(
-            action.payload || new Error("Direct Line connection was rejected.")
-          );
-        }
-        if (
-          action.type === "DIRECT_LINE/POST_ACTIVITY" &&
-          action.payload?.activity?.type === "message"
-        ) {
-          setWelcomeVisible(false);
-        }
-        return next(action);
+    const genericWords = new Set([
+      "bakery", "baking", "cooking", "course", "courses", "beginner",
+      "intermediate", "advanced", "class", "classes", "recommend",
+    ]);
+    let bestMatch;
+    let bestScore = 0;
+    COURSES.forEach((course) => {
+      const words = normalize(course.title)
+        .split(" ")
+        .filter((word) => word.length > 3 && !genericWords.has(word));
+      const score = words.filter((word) => query.includes(word)).length;
+      if (score > bestScore) {
+        bestMatch = course;
+        bestScore = score;
       }
-    );
-  }
-
-  async function connect() {
-    if (!tokenServiceUrl) throw new Error("Token service URL is not configured.");
-    if (!window.WebChat) throw new Error("Web Chat did not load.");
-
-    status.hidden = false;
-    error.hidden = true;
-    const response = await fetch(tokenServiceUrl, { method: "POST" });
-    if (!response.ok) throw new Error("Token service request failed.");
-    const conversation = await response.json();
-    if (!conversation.token) throw new Error("Conversation token is missing.");
-
-    webchat.replaceChildren();
-    store = createStore();
-    directLine = window.WebChat.createDirectLine({
-      token: conversation.token,
     });
-    window.WebChat.renderWebChat({ directLine, store, styleOptions }, webchat);
-    connectionTimeout = window.setTimeout(() => {
-      showConnectionError(new Error("Direct Line connection timed out."));
-    }, 15000);
+    return bestScore >= 1 ? bestMatch : undefined;
   }
 
-  async function initialize() {
-    if (initialized || initializing) return;
-    initializing = true;
-    try {
-      await connect();
-    } catch (connectionError) {
-      showConnectionError(connectionError);
+  function courseSummary(course) {
+    const detail = COURSE_DETAILS[course.code];
+    return `${course.title} (${course.code}) is a ${course.level.toLowerCase()} ${course.cat.toLowerCase()} course. It runs for ${course.weeks} week${course.weeks === 1 ? "" : "s"} (${detail.hours} hours) and costs S$${course.fee}, including ingredients, an apron and take-home recipes. Published intakes: ${detail.intakes}. Location: ${CAMPUSES[course.campus]}. Award: ${detail.certificate}. Contact enrol@cookbakeacademy.sg to confirm the next available place.`;
+  }
+
+  function recommendCourses(question) {
+    const query = normalize(question);
+    const wantsCooking = /\b(cook|cooking|cuisine|sushi|meal|knife|bbq|grill)\b/.test(query);
+    const wantsBakery = /\b(bake|bakery|bread|cake|pastry|cookie|macaron|chocolate)\b/.test(query);
+    const level = /\badvanced\b/.test(query)
+      ? "Advanced"
+      : /\bintermediate\b/.test(query)
+        ? "Intermediate"
+        : /\bbeginner|new|no experience|start\b/.test(query)
+          ? "Beginner"
+          : undefined;
+    const budgetMatch = query.match(/(?:under|below|max|budget)\s*(?:s\$|\$)?\s*(\d+)/);
+    const budget = budgetMatch ? Number(budgetMatch[1]) : Infinity;
+    const wantsShort = /\b(short|quick|one week|1 week|workshop)\b/.test(query);
+
+    let matches = COURSES.filter((course) => {
+      if (wantsCooking && !wantsBakery && course.cat !== "Cooking") return false;
+      if (wantsBakery && !wantsCooking && course.cat !== "Bakery") return false;
+      if (level && course.level !== level) return false;
+      return course.fee <= budget;
+    });
+
+    if (!matches.length) {
+      return "I could not find an exact course matching all those requirements. Try increasing the budget or tell me whether you prefer bakery or cooking.";
     }
+
+    matches.sort((a, b) => wantsShort ? a.weeks - b.weeks || a.fee - b.fee : a.fee - b.fee);
+    const picks = matches.slice(0, 3);
+    return `My top match${picks.length > 1 ? "es are" : " is"}: ${picks
+      .map((course) => `${course.title} (${course.code}) — ${course.level}, ${course.weeks} week${course.weeks === 1 ? "" : "s"}, S$${course.fee}`)
+      .join("; ")}. Ask me about a course code for full details.`;
   }
 
-  function open() {
-    lastActiveElement = document.activeElement;
-    panel.removeAttribute("inert");
-    panel.classList.add("is-open");
-    panel.setAttribute("aria-hidden", "false");
-    fab.hidden = true;
-    closeButton.focus();
-    initialize();
-  }
+  function answer(question) {
+    const query = normalize(question);
+    const course = findCourse(question);
 
-  function close() {
-    panel.classList.remove("is-open");
-    panel.setAttribute("aria-hidden", "true");
-    panel.setAttribute("inert", "");
-    fab.hidden = false;
-    lastActiveElement?.focus();
-  }
-
-  async function restart() {
-    clearConnectionTimeout();
-    directLine?.end();
-    directLine = undefined;
-    initialized = false;
-    initializing = false;
-    store = null;
-    pendingPrompt = "";
-    setWelcomeVisible(true);
-    error.hidden = true;
-    await initialize();
-  }
-
-  function ask(prompt = "") {
-    pendingPrompt = prompt;
-    open();
-    if (initialized) {
-      sendMessage(prompt);
-      pendingPrompt = "";
+    if (course) return courseSummary(course);
+    if (/\b(refund|cancel|cancellation|transfer|withdraw)\b/.test(query)) {
+      return "Refund policy: written notice 14+ calendar days before class receives 100%; 7–13 days receives 75% less S$30; 3–6 days receives 50% less S$30; under 3 days or after the course starts receives no refund. One same-course intake transfer may be requested at least 7 days before the start date for S$30. Email enrol@cookbakeacademy.sg. Approval and any materials deduction remain subject to academy review.";
     }
+    if (/\b(where|location|campus|address)\b/.test(query)) {
+      return `Bakery courses are held at ${CAMPUSES.Bakehouse}. Cooking courses are held at ${CAMPUSES.Culinary}.`;
+    }
+    if (/\b(enrol|enroll|register|sign up|booking|book)\b/.test(query)) {
+      return "To enrol, email enrol@cookbakeacademy.sg or call +65 6888 1234 with your name, selected course code, preferred intake and contact details. Published intakes do not guarantee a place, so please confirm availability before paying.";
+    }
+    if (/\b(fee|price|cost|intake|schedule|course|recommend|beginner|advanced|short|budget|bakery|cooking)\b/.test(query)) {
+      return recommendCourses(question);
+    }
+    if (/\b(hello|hi|hey|help)\b/.test(query)) {
+      return "Hello! I can help you compare our 20 bakery and cooking courses, check fees and published intakes, find campus details, explain enrolment, or summarize the refund policy.";
+    }
+    return "I can answer questions about course recommendations, fees, duration, published intakes, campuses, enrolment and refunds. Try asking “Which beginner bakery course is under S$500?”";
   }
 
-  fab.addEventListener("click", open);
-  closeButton.addEventListener("click", close);
-  restartButton.addEventListener("click", restart);
-  retryButton.addEventListener("click", restart);
-  document.querySelector(".chat__prompts").addEventListener("click", (event) => {
-    const button = event.target.closest("[data-chat-prompt]");
-    if (button) ask(button.dataset.chatPrompt);
-  });
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && panel.classList.contains("is-open")) close();
-  });
+  function send(question) {
+    const text = question.trim();
+    if (!text) return;
+    addMessage(text, "user");
+    input.value = "";
+    window.setTimeout(() => addMessage(answer(text)), 180);
+  }
 
-  return { open, close, ask };
+  function reset() {
+    messages.replaceChildren();
+    addMessage("Hi! I’m the Cook & Bake Academy Course Concierge. Ask me about courses, fees, intakes, campuses, enrolment or refunds.");
+    input.focus();
+  }
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    send(input.value);
+  });
+  suggestions.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-question]");
+    if (button) send(button.dataset.question);
+  });
+  resetButton.addEventListener("click", reset);
+
+  reset();
+  return { ask: send };
 })();
 
-window.CookBakeChat = CookBakeChat;
+document.querySelectorAll(".card__ask").forEach((link, index) => {
+  link.addEventListener("click", () => {
+    const course = COURSES[index];
+    window.setTimeout(() => BrowserCourseAssistant.ask(`Tell me about ${course.code}`), 250);
+  });
+});

@@ -9,21 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20260727-2" />
-  <style>
-    /* Critical fallback: keep the chat out of the document flow while the
-       component stylesheet and Web Chat client are loading. */
-    .chat:not(.is-open) { display: none; }
-    .chat-fab {
-      position: fixed;
-      right: 24px;
-      bottom: 88px;
-      z-index: 2147483000;
-    }
-    @media (max-width: 520px) {
-      .chat-fab { right: 18px; }
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css?v=20260727-3" />
 </head>
 <body>
 
@@ -40,7 +26,7 @@
         <a href="#campus">Campus</a>
         <a href="#contact">Contact</a>
       </nav>
-      <button class="btn btn--sm" onclick="window.CookBakeChat.open()">💬 Ask us</button>
+      <a class="btn btn--sm" href="#course-concierge">💬 Ask us</a>
     </div>
   </header>
 
@@ -55,7 +41,7 @@
         practical, job-ready skills from professional chefs in small classes.</p>
       <div class="hero__cta">
         <a href="#courses" class="btn btn--lg">Browse courses</a>
-        <button class="btn btn--ghost btn--lg" onclick="window.CookBakeChat.open()">💬 Chat with us</button>
+        <a class="btn btn--ghost btn--lg" href="#course-concierge">💬 Chat with us</a>
       </div>
       <div class="hero__stats">
         <div><strong>20+</strong><span>Courses</span></div>
@@ -124,8 +110,41 @@
           <li><strong>🧁 Bakehouse Campus</strong><br />Sweet Heights Bakery Campus, 123 Orchard Road, #04-12, Singapore 238888</li>
           <li><strong>🍳 Culinary Campus</strong><br />Flavour Lab Culinary Campus, 88 Bukit Timah Road, #02-05, Singapore 229841</li>
         </ul>
-        <button class="btn" onclick="window.CookBakeChat.ask('Where are your campuses located?')">Ask about locations</button>
+        <a class="btn" href="#course-concierge">Ask about locations</a>
       </div>
+    </div>
+  </section>
+
+  <!-- ===== FREE IN-BROWSER COURSE ASSISTANT ===== -->
+  <section class="section section--alt" id="course-concierge">
+    <div class="section__head">
+      <p class="eyebrow">Course concierge</p>
+      <h2>Ask our course assistant</h2>
+      <p class="muted">Instant answers about courses, fees, locations, enrolment, and our refund policy—no account required.</p>
+    </div>
+    <div class="faq-chat" aria-label="Cook &amp; Bake Academy course assistant">
+      <header class="faq-chat__header">
+        <span class="faq-chat__monogram" aria-hidden="true">CB</span>
+        <div>
+          <strong>Course Concierge</strong>
+          <span><i aria-hidden="true"></i> Ready to help</span>
+        </div>
+        <button id="faq-chat-reset" type="button" aria-label="Start a new conversation">↻</button>
+      </header>
+
+      <div class="faq-chat__messages" id="faq-chat-messages" role="log" aria-live="polite" aria-relevant="additions"></div>
+
+      <div class="faq-chat__suggestions" id="faq-chat-suggestions" aria-label="Suggested questions">
+        <button type="button" data-question="Which beginner bakery course would you recommend?">Beginner bakery courses</button>
+        <button type="button" data-question="What are the course fees and intakes?">Fees and intakes</button>
+        <button type="button" data-question="What is your refund policy?">Refund policy</button>
+      </div>
+
+      <form class="faq-chat__composer" id="faq-chat-form">
+        <label class="sr-only" for="faq-chat-input">Ask about a course</label>
+        <input id="faq-chat-input" type="text" maxlength="240" autocomplete="off" placeholder="Ask about courses, fees or enrolment…" />
+        <button type="submit" aria-label="Send message">➤</button>
+      </form>
     </div>
   </section>
 
@@ -133,63 +152,16 @@
   <section class="cta" id="contact">
     <h2>Ready to roll up your sleeves?</h2>
     <p>Talk to our customer service assistant about any course — duration, fees, intakes and more.</p>
-    <button class="btn btn--lg" onclick="window.CookBakeChat.open()">💬 Open the chat assistant</button>
+    <a class="btn btn--lg" href="#course-concierge">💬 Open the chat assistant</a>
     <p class="cta__contact">📞 +65 6888 1234 &nbsp;·&nbsp; ✉️ enrol@cookbakeacademy.sg</p>
   </section>
 
   <footer class="footer">
     <p>© 2026 Cook &amp; Bake Academy. A demo cooking &amp; bakery training center.</p>
-    <p class="muted">Course assistant powered by Microsoft Copilot Studio.</p>
+    <p class="muted">Course assistant runs privately in your browser with no AI service charges.</p>
     <p class="powered-by">Powered by <a href="https://www.tertiaryinfotech.com/" target="_blank" rel="noopener">Tertiary Infotech Academy Pte Ltd</a></p>
   </footer>
 
-  <button class="chat-fab" id="chat-fab" type="button" aria-label="Open course concierge">
-    <span aria-hidden="true">Chat</span>
-    <i aria-hidden="true"></i>
-  </button>
-
-  <section class="chat" id="chat" role="dialog" aria-modal="false" aria-label="Course Concierge" aria-hidden="true" inert>
-    <header class="chat__header">
-      <span class="chat__monogram" aria-hidden="true">CB</span>
-      <div class="chat__identity">
-        <strong>Course Concierge</strong>
-        <span><i aria-hidden="true"></i> Online</span>
-      </div>
-      <button class="chat__restart" id="chat-restart" type="button" aria-label="Start a new conversation">↻</button>
-      <button class="chat__close" id="chat-close" type="button" aria-label="Close conversation">×</button>
-    </header>
-
-    <div class="chat__body">
-      <div class="chat__welcome" id="chat-welcome">
-        <span class="chat__welcome-mark" aria-hidden="true">CB</span>
-        <p class="chat__eyebrow">Cook &amp; Bake Academy</p>
-        <h2>How can we help?</h2>
-        <p>Ask about courses, fees, intakes, campuses, enrolment, or our refund policy.</p>
-        <div class="chat__prompts">
-          <button type="button" data-chat-prompt="Which beginner bakery course would you recommend?">Find the right course</button>
-          <button type="button" data-chat-prompt="What are the course fees and upcoming intakes?">Fees and intakes</button>
-          <button type="button" data-chat-prompt="What is your refund policy?">Refund policy</button>
-        </div>
-      </div>
-
-      <div class="chat__status" id="chat-status" role="status" aria-live="polite" hidden>
-        <span class="chat__spinner" aria-hidden="true"></span>
-        <strong>Starting your conversation…</strong>
-      </div>
-
-      <div class="chat__error" id="chat-error" role="alert" hidden>
-        <span aria-hidden="true">!</span>
-        <strong>Chat is temporarily unavailable</strong>
-        <p>Please try again or email <a href="mailto:enrol@cookbakeacademy.sg">enrol@cookbakeacademy.sg</a>.</p>
-        <button type="button" id="chat-retry">Try again</button>
-      </div>
-
-      <div id="webchat" class="chat__webchat" aria-label="Course Concierge messages"></div>
-    </div>
-  </section>
-
-  <script src="https://cdn.jsdelivr.net/npm/botframework-webchat@4.18.0/dist/webchat.js"></script>
-  <script src="copilot-config.js?v=20260727-2"></script>
-  <script src="script.js?v=20260727-4"></script>
+  <script src="script.js?v=20260727-6"></script>
 </body>
 </html>
