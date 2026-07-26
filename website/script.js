@@ -71,8 +71,27 @@ const CookBakeChat = (() => {
   const input = document.getElementById("chat-input");
   let previousFocus;
 
+  const TYPO_CORRECTIONS = {
+    backery: "bakery",
+    bakrey: "bakery",
+    coourses: "courses",
+    corses: "courses",
+    coruses: "courses",
+    enrollement: "enrolment",
+    pasrry: "pastry",
+    pastery: "pastry",
+    pastries: "pastry",
+  };
+
   const normalize = (value) =>
-    value.toLowerCase().replace(/[^a-z0-9$-]+/g, " ").replace(/\s+/g, " ").trim();
+    value
+      .toLowerCase()
+      .replace(/[^a-z0-9$-]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .split(" ")
+      .map((word) => TYPO_CORRECTIONS[word] || word)
+      .join(" ");
 
   function open() {
     previousFocus = document.activeElement;
@@ -194,9 +213,18 @@ const CookBakeChat = (() => {
       /\b(beginner|new|start|no experience)\b/.test(query) ? "Beginner" : undefined;
     const budgetMatch = query.match(/(?:under|below|less than|max|budget)\s*(?:s\$|\$)?\s*(\d+)/);
     const budget = budgetMatch ? Number(budgetMatch[1]) : Infinity;
+    const topicPattern =
+      /\bpastry\b/.test(query) ? /(pastry|pie|tart|macaron)/i :
+      /\b(bread|sourdough)\b/.test(query) ? /(bread|sourdough)/i :
+      /\b(cake|cupcake)\b/.test(query) ? /(cake|cupcake)/i :
+      /\b(chocolate|confectionery)\b/.test(query) ? /(chocolate|confectionery)/i :
+      /\b(sushi|sashimi)\b/.test(query) ? /(sushi|sashimi)/i :
+      /\b(vegetarian|vegan|plant based)\b/.test(query) ? /(vegetarian|vegan)/i :
+      undefined;
     let options = COURSES.filter((course) =>
       (!bakery || cooking || course.cat === "Bakery") &&
       (!cooking || bakery || course.cat === "Cooking") &&
+      (!topicPattern || topicPattern.test(course.title)) &&
       (!level || course.level === level) &&
       course.fee <= budget);
     options.sort((a, b) => a.fee - b.fee || a.weeks - b.weeks);
@@ -214,7 +242,8 @@ const CookBakeChat = (() => {
 
   function answer(question) {
     const query = normalize(question);
-    const course = findCourse(question);
+    const isDiscoveryQuestion = /\b(any|which|what|show|list|recommend|courses)\b/.test(query);
+    const course = isDiscoveryQuestion ? undefined : findCourse(query);
     if (course) return courseAnswer(course);
     if (/\b(refund|cancel|cancellation|transfer|withdraw)\b/.test(query)) return refundAnswer(query);
     if (/\b(where|location|campus|address)\b/.test(query)) {
@@ -232,7 +261,7 @@ const CookBakeChat = (() => {
     if (/\b(hello|hi|hey|help)\b/.test(query)) {
       return { heading: "Hello!", paragraphs: ["I can compare courses, fees and published intakes, find campuses, explain enrolment, or summarize the refund policy."] };
     }
-    if (/\b(fee|price|cost|cheap|cheapest|intake|schedule|course|recommend|beginner|advanced|short|budget|bakery|cooking)\b/.test(query)) {
+    if (/\b(fee|fees|price|cost|cheap|cheapest|intake|schedule|course|courses|recommend|beginner|advanced|short|budget|bakery|baking|cooking|pastry|bread|cake|cookie|macaron|chocolate|sushi|vegetarian|vegan)\b/.test(query)) {
       return recommendation(query);
     }
     return {
