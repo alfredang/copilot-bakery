@@ -62,6 +62,7 @@ document.getElementById("filters").addEventListener("click", (event) => {
 const CookBakeChat = (() => {
   const panel = document.getElementById("chat");
   const fab = document.getElementById("chat-fab");
+  const backdrop = document.getElementById("chat-backdrop");
   const closeButton = document.getElementById("chat-close");
   const restartButton = document.getElementById("chat-restart");
   const welcome = document.getElementById("chat-welcome");
@@ -78,6 +79,7 @@ const CookBakeChat = (() => {
     panel.removeAttribute("inert");
     panel.classList.add("is-open");
     panel.setAttribute("aria-hidden", "false");
+    backdrop.hidden = false;
     fab.setAttribute("aria-expanded", "true");
     fab.hidden = true;
     window.setTimeout(() => input.focus(), 0);
@@ -87,6 +89,7 @@ const CookBakeChat = (() => {
     panel.classList.remove("is-open");
     panel.setAttribute("aria-hidden", "true");
     panel.setAttribute("inert", "");
+    backdrop.hidden = true;
     fab.hidden = false;
     fab.setAttribute("aria-expanded", "false");
     if (previousFocus && previousFocus.focus) previousFocus.focus();
@@ -256,6 +259,7 @@ const CookBakeChat = (() => {
   }
 
   fab.addEventListener("click", open);
+  backdrop.addEventListener("click", close);
   closeButton.addEventListener("click", close);
   restartButton.addEventListener("click", restart);
   welcome.addEventListener("click", (event) => {
