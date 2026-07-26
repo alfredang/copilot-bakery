@@ -86,6 +86,8 @@ const CookBakeChat = (() => {
   let initializing = false;
   let pendingPrompt = "";
   let store;
+  let directLine;
+  let connectionTimeout;
   let lastActiveElement;
 
   const styleOptions = {
@@ -142,11 +144,32 @@ const CookBakeChat = (() => {
     });
   }
 
+  function clearConnectionTimeout() {
+    if (connectionTimeout) {
+      window.clearTimeout(connectionTimeout);
+      connectionTimeout = undefined;
+    }
+  }
+
+  function showConnectionError(connectionError) {
+    clearConnectionTimeout();
+    initialized = false;
+    initializing = false;
+    status.hidden = true;
+    error.hidden = false;
+    console.error("Unable to start course concierge.", connectionError);
+  }
+
   function createStore() {
     return window.WebChat.createStore(
       {},
       ({ dispatch }) => (next) => (action) => {
         if (action.type === "DIRECT_LINE/CONNECT_FULFILLED") {
+          clearConnectionTimeout();
+          initialized = true;
+          initializing = false;
+          status.hidden = true;
+          error.hidden = true;
           dispatch({
             type: "DIRECT_LINE/POST_ACTIVITY",
             meta: { method: "keyboard" },
@@ -163,6 +186,11 @@ const CookBakeChat = (() => {
             pendingPrompt = "";
             window.setTimeout(() => sendMessage(prompt), 250);
           }
+        }
+        if (action.type === "DIRECT_LINE/CONNECT_REJECTED") {
+          showConnectionError(
+            action.payload || new Error("Direct Line connection was rejected.")
+          );
         }
         if (
           action.type === "DIRECT_LINE/POST_ACTIVITY" &&
@@ -188,12 +216,13 @@ const CookBakeChat = (() => {
 
     webchat.replaceChildren();
     store = createStore();
-    const directLine = window.WebChat.createDirectLine({
+    directLine = window.WebChat.createDirectLine({
       token: conversation.token,
     });
     window.WebChat.renderWebChat({ directLine, store, styleOptions }, webchat);
-    initialized = true;
-    status.hidden = true;
+    connectionTimeout = window.setTimeout(() => {
+      showConnectionError(new Error("Direct Line connection timed out."));
+    }, 15000);
   }
 
   async function initialize() {
@@ -202,11 +231,7 @@ const CookBakeChat = (() => {
     try {
       await connect();
     } catch (connectionError) {
-      console.error("Unable to start course concierge.", connectionError);
-      status.hidden = true;
-      error.hidden = false;
-    } finally {
-      initializing = false;
+      showConnectionError(connectionError);
     }
   }
 
@@ -229,7 +254,11 @@ const CookBakeChat = (() => {
   }
 
   async function restart() {
+    clearConnectionTimeout();
+    directLine?.end();
+    directLine = undefined;
     initialized = false;
+    initializing = false;
     store = null;
     pendingPrompt = "";
     setWelcomeVisible(true);
