@@ -9,7 +9,21 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20260727-1" />
+  <link rel="stylesheet" href="styles.css?v=20260727-2" />
+  <style>
+    /* Critical fallback: keep the chat out of the document flow while the
+       component stylesheet and Web Chat client are loading. */
+    .chat:not(.is-open) { display: none; }
+    .chat-fab {
+      position: fixed;
+      right: 24px;
+      bottom: 88px;
+      z-index: 2147483000;
+    }
+    @media (max-width: 520px) {
+      .chat-fab { right: 18px; }
+    }
+  </style>
 </head>
 <body>
 
@@ -175,7 +189,7 @@
   </section>
 
   <script src="https://cdn.jsdelivr.net/npm/botframework-webchat@4.18.0/dist/webchat.js"></script>
-  <script src="copilot-config.js?v=20260727-1"></script>
-  <script src="script.js?v=20260727-1"></script>
+  <script src="copilot-config.js?v=20260727-2"></script>
+  <script src="script.js?v=20260727-2"></script>
 </body>
 </html>
